@@ -140,7 +140,10 @@ function nextPos(pos) {
 }
 
 
-function doAStar(startPoint, endPoint, blockList) {
+function doAStar(sP, eP, bL) {
+  startPoint = sP;
+  endPoint = eP;
+  blockList = bL; // init
   endPoint.forEach(function (ep) {
     openList = [];
     closeList = [];
@@ -169,6 +172,3 @@ function doAStar(startPoint, endPoint, blockList) {
     }
   });
 }
-
-
-// create a wrapper around native canvas element (with id="c")
