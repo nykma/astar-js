@@ -1,0 +1,14 @@
+.buttons {
+  float: left;
+}
+
+button {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+canvas {
+  border-style: solid;
+  border-color: coral;
+  border-width: 2px;
+}

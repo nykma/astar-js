@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-CN">
+    <meta charset="UTF-8">
+    <title>A* w/ Manhattan</title>
+    <script src="./fabric.min.js" type="text/javascript"></script>
+    <script src="./astar.js" type="text/javascript"></script>
+    <script src="./draw.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="./style.css" media="screen" />
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas width="600" height="600" id="c"></canvas>
+    </div>
+    <div id="buttons">
+        <button id="setstart" onclick="setStartPoint()">Set Start</button>
+        <button id="setend" onclick="setEndPoint()">Set End</button>
+        <button id="run" onclick="doAStar()">Run</button>
+        <button id="clear">Clear</button>
+    </div>
+    <p>请使用支持 canvas 的浏览器。</p>
+</body>
+</html>
