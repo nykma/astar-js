@@ -1,22 +1,5 @@
 // F(G+H)
 // G(移动开销)  H(估算距离)
-//var openList = [],
-//  closeList = [],
-//  startPoint = {X: 0, Y: 0, G: 0, father: undefined},
-//  endPoint = [{X: 5, Y: 5}], //起点和终点
-//  blockList = [], // 障碍物
-//  map.W = 10, map.H = 10; // 地图尺寸
-//pos = {X=0, Y=0, G=0, H=0, F=0, Father=pos},
-// 测试用例
-//blockList.push({X:1,Y:1});
-//blockList.push({X:2,Y:2});
-
-// Array 添加一个 remove 方法以便移除元素
-//Array.prototype.remove = function (from, to) {
-//  var rest = this.slice((to || from) + 1 || this.length);
-//  this.length = from < 0 ? this.length + from : from;
-//  return this.push.apply(this, rest);
-//};
 
 // 判断一个点是否合法
 // 是否超出地图:
@@ -95,7 +78,7 @@ function sortArr(posArr) { //给点列按 F 由大到小排序
 
 // 获取周围格的情况
 function lookAround(pos) {
-  var res = [];
+  var res = []; // 看周围八个点
   res.push({X: (pos.X), Y: (pos.Y + 1), G: gV + pos.G, direction:"S"});
   res.push({X: (pos.X + 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SE"});
   res.push({X: (pos.X + 1), Y: (pos.Y), G: gH + pos.G, direction:"E"});
@@ -104,16 +87,14 @@ function lookAround(pos) {
   res.push({X: (pos.X - 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NW"});
   res.push({X: (pos.X - 1), Y: (pos.Y), G: gH + pos.G, direction:"W"});
   res.push({X: (pos.X - 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SW"});
-  //console.log("res: ");
-  //console.dir(res); // TEST
   var removeList = [];
   for (var i = 0; i < res.length; i++) { // 对点作处理
     if (!isLegal(res[i])) {
-      removeList.push(i); // 标记不合法的部分
+      removeList.push(i); // 标记不合法的点
     }
   }
   for (i = 0; i < removeList.length; i++) {
-    res.remove(removeList[i] - i); // 剔除不合法的部分
+    res.remove(removeList[i] - i); // 剔除不合法的点
   }
   for (i = 0; i < res.length; i++) {
     res[i].H = (Math.abs(res[i].X - endPoint[0].X) + Math.abs(res[i].Y - endPoint[0].Y)) * 10; // H 参数的 Manhattan 算法
@@ -130,10 +111,11 @@ function lookAround(pos) {
   return sortArr(res); // 返回按 F 排序后的结果
 }
 
+// 确定要走的下一格
 function nextPos(pos) {
-  var surround = lookAround(pos); // 看周围格
+  var surround = lookAround(pos); // 看周围
   var next; // 下一步
-  if (surround.length === 1) { // 周围只有一格可用
+  if (surround.length === 1) { // 如果周围只有一格可用
     next = surround[0]; // 直接走
   }
   else if (surround.length === 0) { //如果周围无可用格
@@ -151,8 +133,9 @@ function nextPos(pos) {
     openList = openList.concat(surround); // 将剩余格子加入 openList 中
   }
   closeList.push(next); // 将下一步格子压入 closeList 中
-  return next;
+  return next; // 返回下一步
 }
+// 寻路
 function doAStar() {
   var currentPos = startPoint; // 站到起点上
   var counter = 0; // 计步器
@@ -163,13 +146,12 @@ function doAStar() {
     canvasDrawResult(); // 刷新画布结果
     counter++; // 计步器加1
     if(counter % 3 === 0) // 每走3步
-      openList = sortArr(openList); // 给openList 排序
-    if (!currentPos) { // 如果无可用openList
+      openList = sortArr(openList); // 给 openList 排序，保证最小 F 在最前面
+    if (!currentPos) { // 如果无可用 openList
       console.error("openList 耗尽，无可用路径。");
       alert("openList 耗尽，无可用路径。");
       break;
     }
-    //console.log("Next step: " + currentPos.X + " , " + currentPos.Y); // TEST
     if ((currentPos.X === endPoint[0].X) && (currentPos.Y === endPoint[0].Y)) {
       console.info("寻路成功");
       break; // 到达终点，结束寻路。
@@ -187,8 +169,11 @@ function doAStar() {
     currentPos = currentPos.father;
   }
   finalPath.reverse(); // 反转，得到最终结果
+  // console.dir(finalPath);
   canvasDrawResult(finalPath); // 绘制结果
-  startPoint.X = endPoint[0].X;
-  startPoint.Y = endPoint[0].Y; // 将上一次终点作为下一次起点
-  endPoint.remove(0); // 移除上一次终点
+  if(endPoint.length>=2) { // 如果有多于一个终点
+    startPoint.X = endPoint[0].X;
+    startPoint.Y = endPoint[0].Y; // 将上一次终点作为下一次起点
+    endPoint.remove(0); // 移除上一次终点
+  }
 }

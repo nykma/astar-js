@@ -50,7 +50,6 @@ var canvasDrawGrid = function () {
   lineGroup.forEach(function (line) {
     canvas.add(line);
   });
-  //console.info("Into drawGrid.");
 };
 
 // 画矩形格矩阵
@@ -105,7 +104,6 @@ var canvasRefresh = function () {
 };
 // 画结果
 var canvasDrawResult = function (finalPath) {
-  //console.log(finalPath);
   openList.forEach(function (pos) {
     rectGroup[pos.X][pos.Y].set({fill: "rgba(84,255,159,0.7)"});
   });
@@ -165,10 +163,7 @@ var rectClicked = function (options) {
   };
   var rectX = Math.floor((options.e.offsetX / canvasSize.W) * map.W); // 获取鼠标点击时的格坐标
   var rectY = Math.floor((options.e.offsetY / canvasSize.H) * map.H);
-  //console.log(rectX, rectY);
   toggleStatus(rectX, rectY);
-  //return toggleStatus;
-  //canvasRefresh();
 };
 
 canvas.on("mouse:down", rectClicked); //给画布绑定点击事件
