@@ -66,7 +66,7 @@ var canvasDrawRect = function () {
   }
 };
 
-var canvasRefresh = function () {
+var canvasRefresh = function () { //刷新画布
   rectGroup.forEach(function (rectLine) {
     rectLine.forEach(function (r) {
       r.set({fill: 'rgba(0,0,0,0.1)'}); // 全部格初始化颜色
@@ -76,19 +76,21 @@ var canvasRefresh = function () {
   endPoint.forEach(function (ep) {
     rectGroup[ep.X][ep.Y].set({fill: "orange"}); // 终点
   });
+  blockList.forEach(function (b) {
+    rectGroup[b.X][b.Y].set({fill: "black"}); // 障碍
+  });
   canvas.renderAll();
   openList = [];
-  closeList = [];
-  blockList = [];
+  closeList = []; // 清空openList 和closeList
 };
 
 var canvasDrawResult = function (finalPath) {
   console.log(finalPath);
   openList.forEach(function (pos) {
-    rectGroup[pos.X][pos.Y].set({fill: "purple"});
+    rectGroup[pos.X][pos.Y].set({fill: "rgba(84,255,159,0.7)"});
   });
   closeList.forEach(function (pos) {
-    rectGroup[pos.X][pos.Y].set({fill: "rgba(0,0,0,0.4)"});
+    rectGroup[pos.X][pos.Y].set({fill: "rgba(82,139,139,0.7)"});
   });
   finalPath.forEach(function (pos) {
     rectGroup[pos.X][pos.Y].set({fill: "red"});
@@ -124,7 +126,7 @@ var rectClicked = function (options) {
       rectGroup[i][j].set({fill: color});// 点亮当前格
     } else {
       for (var k = 0; k < targetList.length; k++) {
-        if (targetList[k].X === i && targetList[k].Y === j) { // 遍历表中有无当前格
+        if (targetList[k].X === i && targetList[k].Y === j) { // 若表中有当前格
           rectGroup[i][j].set({fill: "rgba(0,0,0,0.1)"}); // 恢复默认颜色
           targetList.remove(k); // 从表中移除此格
           break;
@@ -132,7 +134,7 @@ var rectClicked = function (options) {
       }
       if (k === targetList.length) { // 如果没做删除操作
         rectGroup[i][j].set({fill: color}); // 点亮该格；
-        targetList.push({X: i, Y: j}); // 则将点压入目标列
+        targetList.push({X: i, Y: j}); // 将点压入目标列
       }
     }
     canvas.renderAll(); // 刷新画布
@@ -140,7 +142,7 @@ var rectClicked = function (options) {
   };
   var rectX = Math.floor((options.e.offsetX / canvasSize.W) * map.W); // 获取鼠标点击时的格坐标
   var rectY = Math.floor((options.e.offsetY / canvasSize.H) * map.H);
-  console.log(rectX, rectY);
+  //console.log(rectX, rectY);
   toggleStatus(rectX, rectY);
   //return toggleStatus;
   //canvasRefresh();

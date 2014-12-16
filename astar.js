@@ -125,7 +125,7 @@ function nextPos(pos) {
       next = openList[openList.length - 1]; // 则在 openList 里挑一个最小 F
       openList.remove(openList.length - 1); // 从openList 中移除此格
     }
-    else {
+    else { // 如果 openList 空了
       return 0; // 返回错误
     }
   }
@@ -138,31 +138,37 @@ function nextPos(pos) {
   return next;
 }
 function doAStar() {
-  endPoint.forEach(function (ep) {
-    openList = [];
-    closeList = [];
-    var currentPos = startPoint; // 站到起点上
-    closeList.push(currentPos); // 将起点压入 closeList
-    while (1) { // 开始寻路
-      //openList.concat(lookAround(currentPos)); // 将周围的可用格加入openList
-      // drawCanvas(); // 画图
-      currentPos = nextPos(currentPos); // 走入下一格
-      if (!currentPos) { // 如果无可用openList
-        console.error("openList 耗尽，无可用路径。");
-        break;
-      }
-      //console.log("Next step: " + currentPos.X + " , " + currentPos.Y); // TEST
-      if ((currentPos.X === ep.X) && (currentPos.Y === ep.Y)) {
-        console.info("寻路成功");
-        break; // 到达终点，结束寻路。
-      }
+  var currentPos = startPoint; // 站到起点上
+  canvasRefresh(); // 刷新画布
+  closeList.push(currentPos); // 将起点压入 closeList
+  while (1) { // 开始寻路
+    //openList.concat(lookAround(currentPos)); // 将周围的可用格加入openList
+    // drawCanvas(); // 画图
+    currentPos = nextPos(currentPos); // 走入下一格
+    if (!currentPos) { // 如果无可用openList
+      console.error("openList 耗尽，无可用路径。");
+      break;
     }
-    var finalPath = [];
-    while (currentPos && currentPos.father) { //开始回溯
-      finalPath.push({X: currentPos.X, Y: currentPos.Y});
-      currentPos = currentPos.father;
+    //console.log("Next step: " + currentPos.X + " , " + currentPos.Y); // TEST
+    if ((currentPos.X === endPoint[0].X) && (currentPos.Y === endPoint[0].Y)) {
+      console.info("寻路成功");
+      break; // 到达终点，结束寻路。
     }
-    finalPath.reverse(); // 反转，得到最终结果
-    canvasDrawResult(finalPath); // 绘制结果
-  });
+  }
+  var finalPath = [];
+  while (currentPos && currentPos.father) { //开始回溯
+    finalPath.push({
+      X: currentPos.X,
+      Y: currentPos.Y,
+      F: currentPos.F,
+      G:currentPos.G,
+      H: currentPos.H
+    });
+    currentPos = currentPos.father;
+  }
+  finalPath.reverse(); // 反转，得到最终结果
+  canvasDrawResult(finalPath); // 绘制结果
+  startPoint.X = endPoint[0].X;
+  startPoint.Y = endPoint[0].Y; // 将上一次终点作为下一次起点
+  endPoint.remove(0); // 移除上一次终点
 }
