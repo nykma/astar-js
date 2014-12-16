@@ -1,29 +1,28 @@
 // F(G+H)
 // G(移动开销)  H(估算距离)
-var openList = [],
-  closeList = [],
-  startPoint = {X: 0, Y: 0, G: 0, father: undefined},
-  endPoint = [{X: 5, Y: 5}], //起点和终点
-  blockList = [], // 障碍物
-  gH = 10, gV = 10, gHV = 14, // 水平、垂直、对角线方向的移动权重
-  mapW = 10, mapH = 10; // 地图尺寸
+//var openList = [],
+//  closeList = [],
+//  startPoint = {X: 0, Y: 0, G: 0, father: undefined},
+//  endPoint = [{X: 5, Y: 5}], //起点和终点
+//  blockList = [], // 障碍物
+//  map.W = 10, map.H = 10; // 地图尺寸
 //pos = {X=0, Y=0, G=0, H=0, F=0, Father=pos},
 // 测试用例
 //blockList.push({X:1,Y:1});
 //blockList.push({X:2,Y:2});
 
 // Array 添加一个 remove 方法以便移除元素
-Array.prototype.remove = function (from, to) {
-  var rest = this.slice((to || from) + 1 || this.length);
-  this.length = from < 0 ? this.length + from : from;
-  return this.push.apply(this, rest);
-};
+//Array.prototype.remove = function (from, to) {
+//  var rest = this.slice((to || from) + 1 || this.length);
+//  this.length = from < 0 ? this.length + from : from;
+//  return this.push.apply(this, rest);
+//};
 
 // 判断一个点是否合法
 // 是否超出地图:
 function isInMap(pos) {
   //console.log(pos); // TEST
-  return !(pos.X < 0 || pos.Y < 0 || pos.X >= mapW || pos.Y >= mapH);
+  return !(pos.X < 0 || pos.Y < 0 || pos.X >= map.W || pos.Y >= map.H);
 }
 
 // 是否在 openList 和 closeList 内
@@ -140,10 +139,7 @@ function nextPos(pos) {
 }
 
 
-function doAStar(sP, eP, bL) {
-  startPoint = sP;
-  endPoint = eP;
-  blockList = bL; // init
+function doAStar() {
   endPoint.forEach(function (ep) {
     openList = [];
     closeList = [];
@@ -168,7 +164,7 @@ function doAStar(sP, eP, bL) {
         currentPos = currentPos.father;
       }
       finalPath.reverse(); // 反转，得到最终结果
-      canvasDrawResult(finalPath, openList, closeList); // 绘制结果
+      canvasDrawResult(finalPath); // 绘制结果
     }
   });
 }

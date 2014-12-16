@@ -1,13 +1,22 @@
 var rectGroup = [],     // 方格矩阵
     editStatus = 0,     // 编辑状态。0:障碍 1:起点 2:终点
     canvas = new fabric.Canvas('canvas'),    // 画布
-    map = ({W:6, H:6}),
+    map = ({W:6, H:6}), // 网格数量
     canvasSize = {W:600, H:600},     // 画布尺寸
     startPoint = {X: 0, Y: 0, G: 0, father: undefined},
     endPoint = [{X: 5, Y: 5}], //起点和终点
+    gH = 10, gV = 10, gHV = 14, // 水平、垂直、对角线方向的移动权重
     blockList = []; // 障碍物
+
 canvas.setHeight(canvasSize.H);
 canvas.setWidth(canvasSize.W);
+
+// Array 添加一个 remove 方法以便移除元素
+Array.prototype.remove = function (from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
+};
 
 var canvasDrawGrid = function () {
   var lineGroup = [];
@@ -50,22 +59,11 @@ var canvasDrawRect = function () {
         fill: 'rgba(0,0,0,0.1)',
         selectable: false
       });
-      //r.on("mouse:down", rectClicked(i,j)); //给格子分配点击事件
       rectLine.push(r);
+      canvas.add(r);
     }
     rectGroup.push(rectLine);
   }
-  rectGroup.forEach(function (rectLine) {
-    rectLine.forEach(function (r) {
-      canvas.add(r);
-    })
-  });
-  //canvas.renderAll();
-};
-
-var canvasInit = function () {
-  canvasDrawGrid();
-  canvasDrawRect();
 };
 
 var canvasRefresh = function () {
@@ -78,64 +76,71 @@ var canvasRefresh = function () {
   endPoint.forEach(function (ep) {
     rectGroup[ep.X][ep.Y].set({fill: "orange"}); // 终点
   });
-  openList.forEach(function (o) {
-    rectGroup[o.X][o.Y].set({fill: "cyan"}); // 开列表
-  });
-  closeList.forEach(function (c) {
-    rectGroup[c.X][c.Y].set({fill: "green"}); // 闭列表
-  });
   canvas.renderAll();
 };
 
-var canvasDrawResult = function (finalPath, openList, closeList) {
+var canvasDrawResult = function (finalPath) {
   console.log(finalPath);
   finalPath.forEach(function (pos) {
     rectGroup[pos.X][pos.Y].set({fill: "red"});
   });
+  openList.forEach(function (pos) {
+    rectGroup[pos.X][pos.Y].set({fill: "purple"});
+  });
+  closeList.forEach(function (pos) {
+    rectGroup[pos.X][pos.Y].set({fill: "green"});
+  });
   canvas.renderAll();
 };
+var setStartPoint = function () {  editStatus = 1; };
+var setEndPoint = function () {  editStatus = 2; };
 
-var setStartPoint = function () {
-  editStatus = 1;
-};
-var setEndPoint = function () {
-  editStatus = 2;
-};
-var rectClicked = function (i, j) {
-  switch (editStatus) {
-    case 0:
-      toggleStatus(i, j, "blockList");
-      break;
-    case 1:
-      rectGroup[startPoint.X][startPoint.Y].set({fill: "rgba(0,0,0,0.1)"});
-      startPoint = {X: i, Y: j};
-      rectGroup[startPoint.X][startPoint.Y].set({fill: "rgba(0,100,0,0.9)"});
-      break;
-    case 2:
-      toggleStatus(i, j, "endPoint");
-      break;
-  }
+var rectClicked = function (options) {
+  var toggleStatus = function () {
+    var status = 0;
+    var targetList = undefined;
+    switch (editStatus) { // 判断当前编辑状态
+      case 0:
+        targetList = blockList;
+        break;
+      case 1:
+        rectGroup[startPoint.X][startPoint.Y].set({fill: "rgba(0,0,0,0.1)"});
+        startPoint = {X: i, Y: j};
+        rectGroup[startPoint.X][startPoint.Y].set({fill: "rgba(0,100,0,0.9)"});
+        canvas.renderAll(); // 更改起始点
+        break;
+      case 2:
+        targetList = endPoint;
+        break;
+    }
+    if (targetList && targetList.length === 0)
+      targetList.push({X: i, Y: j});
+    for (var k = 0; k < targetList.length; k++) {
+      if (targetList[k].X === i && targetList[k].Y === j) {
+        targetList.remove(k);
+        status = 1;
+        break;
+      }
+    }
+    if (!status) {
+      targetList.push({X: i, Y: j});
+    }
+  };
+  //console.log(options);
+  //console.log(options.e.offsetX);
+  //console.log(options.e.offsetY);
+  var rectX = Math.floor((options.e.offsetX / canvasSize.W) * map.W);
+  var rectY = Math.floor((options.e.offsetY / canvasSize.H) * map.H);
+  console.log(rectX, rectY);
+  //return toggleStatus;
   //canvasRefresh();
 };
-var toggleStatus = function (i, j, list) {
-  var status = 0;
-  var targetList = (list === "blockList") ? blockList : endPoint;
-  if (targetList.length === 0)
-    targetList.push({X: i, Y: j});
-  for (var k = 0; k < targetList.length; k++) {
-    if (targetList[k].X === i && targetList[k].Y === j) {
-      targetList.remove(k);
-      status = 1;
-      break;
-    }
-  }
-  if (!status) {
-    targetList.push({X: i, Y: j});
-  }
-};
+
+canvas.on("mouse:down", rectClicked); //给格子分配点击事件
 window.onload = function () {
   console.info("Loaded.");
   canvasDrawGrid();
   canvasDrawRect();
+  canvasRefresh();
 };
 
