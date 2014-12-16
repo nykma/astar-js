@@ -1,6 +1,6 @@
-.buttons {
-  float: left;
-}
+/*.buttons {*/
+  /*float: left;*/
+/*}*/
 
 button {
   margin-left: 5px;
@@ -8,7 +8,11 @@ button {
 }
 
 canvas {
+  float: left;
   border-style: solid;
   border-color: coral;
   border-width: 2px;
+}
+#desc {
+  float: right;
 }

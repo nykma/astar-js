@@ -21,7 +21,6 @@
 // 判断一个点是否合法
 // 是否超出地图:
 function isInMap(pos) {
-  //console.log(pos); // TEST
   return !(pos.X < 0 || pos.Y < 0 || pos.X >= map.W || pos.Y >= map.H);
 }
 
@@ -47,11 +46,29 @@ function isNotInCloseList(pos) {
 
 // 是否被阻挡
 function isNotBlocked(pos) {
-  if (!blockList.length)
-    return true;
+  if (!blockList.length) // 如果障碍列表为空
+    return true; // 直接返回
   for (var i = 0; i < blockList.length; i++) {
-    if (blockList[i].X === pos.X && blockList[i].Y === pos.Y)
+    if (blockList[i].X === pos.X && blockList[i].Y === pos.Y) // 走上了障碍格
       return false;
+  }
+  switch (pos.direction) { // 根据移动方向判断是否「穿墙」
+    case "NE": // 判断移动方向的对角线是否同时存在两块障碍
+      if(blockList.hasPosition(pos.X -1,pos.Y) >=0 && blockList.hasPosition(pos.X, pos.Y+1) >=0)
+        return false;
+      break;
+    case "NW":
+      if(blockList.hasPosition(pos.X +1,pos.Y) >=0 && blockList.hasPosition(pos.X, pos.Y+1) >=0)
+        return false;
+      break;
+    case "SE":
+      if(blockList.hasPosition(pos.X -1,pos.Y) >=0 && blockList.hasPosition(pos.X, pos.Y-1) >=0)
+        return false;
+      break;
+    case "SW":
+      if(blockList.hasPosition(pos.X +1,pos.Y) >=0 && blockList.hasPosition(pos.X, pos.Y-1) >=0)
+        return false;
+      break;
   }
   return true;
 }
@@ -64,7 +81,7 @@ function isLegal(pos) {
 function sortArr(posArr) { //给点列按 F 由大到小排序
   if (posArr.length <= 1)
     return posArr; // 直接返回不需要排序的点列
-  for (var i = 1; i < posArr.length; i++) { //数量不多，冒泡足矣
+  for (var i = 1; i < posArr.length; i++) { //冒泡
     for (var j = 0; j < i; j++) {
       if (posArr[i].F > posArr[j].F) {
         var temp = posArr[i];
@@ -79,20 +96,19 @@ function sortArr(posArr) { //给点列按 F 由大到小排序
 // 获取周围格的情况
 function lookAround(pos) {
   var res = [];
-  res.push({X: (pos.X), Y: (pos.Y + 1), G: gV + pos.G});   // N
-  res.push({X: (pos.X + 1), Y: (pos.Y + 1), G: gHV + pos.G}); // NE
-  res.push({X: (pos.X + 1), Y: (pos.Y), G: gH + pos.G});    // E
-  res.push({X: (pos.X + 1), Y: (pos.Y - 1), G: gHV + pos.G}); // SE
-  res.push({X: (pos.X), Y: (pos.Y - 1), G: gV + pos.G});  // S
-  res.push({X: (pos.X - 1), Y: (pos.Y - 1), G: gHV + pos.G}); // SW
-  res.push({X: (pos.X - 1), Y: (pos.Y), G: gH + pos.G});    // W
-  res.push({X: (pos.X - 1), Y: (pos.Y + 1), G: gHV + pos.G}); // NW
+  res.push({X: (pos.X), Y: (pos.Y + 1), G: gV + pos.G, direction:"S"});
+  res.push({X: (pos.X + 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SE"});
+  res.push({X: (pos.X + 1), Y: (pos.Y), G: gH + pos.G, direction:"E"});
+  res.push({X: (pos.X + 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NE"});
+  res.push({X: (pos.X), Y: (pos.Y - 1), G: gV + pos.G, direction:"N"});
+  res.push({X: (pos.X - 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NW"});
+  res.push({X: (pos.X - 1), Y: (pos.Y), G: gH + pos.G, direction:"W"});
+  res.push({X: (pos.X - 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SW"});
   //console.log("res: ");
   //console.dir(res); // TEST
   var removeList = [];
   for (var i = 0; i < res.length; i++) { // 对点作处理
     if (!isLegal(res[i])) {
-      //console.log("Remove: " + res[i].X + res[i].Y); // TEST
       removeList.push(i); // 标记不合法的部分
     }
   }
@@ -111,7 +127,7 @@ function lookAround(pos) {
       }
     }
   }
-  return sortArr(res); // 返回按 F 排序后的sortArr
+  return sortArr(res); // 返回按 F 排序后的结果
 }
 
 function nextPos(pos) {
@@ -139,14 +155,18 @@ function nextPos(pos) {
 }
 function doAStar() {
   var currentPos = startPoint; // 站到起点上
-  canvasRefresh(); // 刷新画布
+  var counter = 0; // 计步器
+ canvasRefresh(); // 刷新画布
   closeList.push(currentPos); // 将起点压入 closeList
   while (1) { // 开始寻路
-    //openList.concat(lookAround(currentPos)); // 将周围的可用格加入openList
-    // drawCanvas(); // 画图
     currentPos = nextPos(currentPos); // 走入下一格
+    canvasDrawResult(); // 刷新画布结果
+    counter++; // 计步器加1
+    if(counter % 3 === 0) // 每走3步
+      openList = sortArr(openList); // 给openList 排序
     if (!currentPos) { // 如果无可用openList
       console.error("openList 耗尽，无可用路径。");
+      alert("openList 耗尽，无可用路径。");
       break;
     }
     //console.log("Next step: " + currentPos.X + " , " + currentPos.Y); // TEST

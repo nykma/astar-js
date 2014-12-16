@@ -7,14 +7,29 @@
     <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-        <canvas width="600" height="600" id="canvas"></canvas>
+    <div id="desc">
+        <h1>A*寻路演示</h1>
+        <h2>w/ Manhattan</h2>
+        <p>说明：</p>
+        <p>直接点击格以设置或取消障碍（黑色）</p>
+        <p>点击「start」或「end」以设置起点（绿色）和终点（橙色）</p>
+        <p>点击「Run」以执行寻路，若寻路成功，路径以红色显示。</p>
+        <p>支持多个终点。前一次的终点会自动作为下一次的起点。</p>
+        <p>备注：请使用支持 canvas 的浏览器。</p>
+    </div>
+    <canvas width="600" height="600" id="canvas"></canvas>
+
+    <p></p>
     <div id="buttons">
         <button id="setstart" onclick="setStartPoint()">Set Start</button>
         <button id="setend" onclick="setEndPoint()">Set End</button>
         <button id="run" onclick="doAStar()">Run</button>
-        <button id="clear" onclick="canvasRefresh()">Clear</button>
+        Map size:
+        <input type="number" id="mapsize" value="20"/>
+        <button id="refresh" onclick="canvasRefresh()">Refresh</button>
     </div>
-    <p>请使用支持 canvas 的浏览器。</p>
+
+
     <script src="./draw.js" type="text/javascript"></script>
     <script src="./astar.js" type="text/javascript"></script>
 </body>
