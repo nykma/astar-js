@@ -90,7 +90,7 @@ function lookAround(pos) {
   //console.log("res: ");
   //console.dir(res); // TEST
   var removeList = [];
-  for (var i = 0; i < 8; i++) { // 对点作处理
+  for (var i = 0; i < res.length; i++) { // 对点作处理
     if (!isLegal(res[i])) {
       //console.log("Remove: " + res[i].X + res[i].Y); // TEST
       removeList.push(i); // 标记不合法的部分
@@ -100,7 +100,7 @@ function lookAround(pos) {
     res.remove(removeList[i] - i); // 剔除不合法的部分
   }
   for (i = 0; i < res.length; i++) {
-    res[i].H = (Math.abs(res[i].X - endPoint.X) + Math.abs(res[i].Y - endPoint.Y)) * 10; // H 参数的 Manhattan 算法
+    res[i].H = (Math.abs(res[i].X - endPoint[0].X) + Math.abs(res[i].Y - endPoint[0].Y)) * 10; // H 参数的 Manhattan 算法
     res[i].F = res[i].G + res[i].H;
     res[i].father = pos; // 指定父点
     for (var j = 0; j < openList.length; j++) {
@@ -137,8 +137,6 @@ function nextPos(pos) {
   closeList.push(next); // 将下一步格子压入 closeList 中
   return next;
 }
-
-
 function doAStar() {
   endPoint.forEach(function (ep) {
     openList = [];
@@ -158,13 +156,13 @@ function doAStar() {
         console.info("寻路成功");
         break; // 到达终点，结束寻路。
       }
-      var finalPath = [];
-      while (currentPos && currentPos.father) { //开始回溯
-        finalPath.push({X: currentPos.X, Y: currentPos.Y});
-        currentPos = currentPos.father;
-      }
-      finalPath.reverse(); // 反转，得到最终结果
-      canvasDrawResult(finalPath); // 绘制结果
     }
+    var finalPath = [];
+    while (currentPos && currentPos.father) { //开始回溯
+      finalPath.push({X: currentPos.X, Y: currentPos.Y});
+      currentPos = currentPos.father;
+    }
+    finalPath.reverse(); // 反转，得到最终结果
+    canvasDrawResult(finalPath); // 绘制结果
   });
 }

@@ -7,8 +7,8 @@ button {
   margin-right: 5px;
 }
 
-/*canvas {*/
-  /*border-style: solid;*/
-  /*border-color: coral;*/
-  /*border-width: 2px;*/
-/*}*/
+canvas {
+  border-style: solid;
+  border-color: coral;
+  border-width: 2px;
+}
