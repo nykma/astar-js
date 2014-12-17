@@ -73,19 +73,72 @@ function sortArr(posArr) { //给点列按 F 由大到小排序
       }
     }
   }
+  if((posArr[posArr.length-2].F === posArr[posArr.length-1].F) && (posArr[posArr.length-2].direction === endDirection)) {
+    var t = posArr[posArr.length-2]; // 若最终两点的权重相同，则按指向终点的方向走
+    posArr[posArr.length-2] = posArr[posArr.length-1];
+    posArr[posArr.length-1] = t;
+  }
   return posArr;
+}
+// 获取大方向
+function getEndDirection(pos) {
+  var xx = 0, yy=0; // 取符号
+  if(pos.X !== endPoint[0].X)
+    xx = (pos.X - endPoint[0].X) / Math.abs(pos.X - endPoint[0].X);
+  if(pos.Y !== endPoint[0].Y)
+    yy = (pos.Y - endPoint[0].Y) / Math.abs(pos.Y - endPoint[0].Y);
+  switch (xx) {
+    case 0: // 起点与终点横坐标相等
+      switch (yy) {
+        case 1: // 如果终点纵坐标比起点纵坐标小
+          endDirection = "N"; // 终点在起点北边
+          break;
+        case -1:
+          endDirection = "S";
+          break;
+      }
+      break;
+    case 1: // 起点横坐标比终点横坐标大，说明终点在起点西边。
+      switch (yy) {
+        case 0:
+          endDirection = "W";
+          break;
+        case 1:
+          endDirection = "NW";
+          break;
+        case -1:
+          endDirection = "SW";
+          break;
+      }
+      break;
+    case -1: // 起点横坐标比终点小，终点在起点东边
+      switch (yy) {
+        case 0:
+          endDirection = "E";
+          break;
+        case 1:
+          endDirection = "NE";
+          break;
+        case -1:
+          endDirection = "SE";
+          break;
+      }
+      break;
+  }
+
 }
 
 // 获取周围格的情况
 function lookAround(pos) {
+  getEndDirection(pos); // 刷新大方向
   var res = []; // 看周围八个点
   res.push({X: (pos.X), Y: (pos.Y + 1), G: gV + pos.G, direction:"S"});
-  res.push({X: (pos.X + 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SE"});
   res.push({X: (pos.X + 1), Y: (pos.Y), G: gH + pos.G, direction:"E"});
-  res.push({X: (pos.X + 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NE"});
   res.push({X: (pos.X), Y: (pos.Y - 1), G: gV + pos.G, direction:"N"});
-  res.push({X: (pos.X - 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NW"});
   res.push({X: (pos.X - 1), Y: (pos.Y), G: gH + pos.G, direction:"W"});
+  res.push({X: (pos.X + 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SE"});
+  res.push({X: (pos.X + 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NE"});
+  res.push({X: (pos.X - 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NW"});
   res.push({X: (pos.X - 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SW"});
   var removeList = [];
   for (var i = 0; i < res.length; i++) { // 对点作处理
@@ -97,7 +150,7 @@ function lookAround(pos) {
     res.remove(removeList[i] - i); // 剔除不合法的点
   }
   for (i = 0; i < res.length; i++) {
-    res[i].H = (Math.abs(res[i].X - endPoint[0].X) + Math.abs(res[i].Y - endPoint[0].Y)) * 10; // H 参数的 Manhattan 算法
+    res[i].H = (Math.abs(res[i].X - endPoint[0].X) + Math.abs(res[i].Y - endPoint[0].Y)) * manhattan; // H 参数的 Manhattan 算法
     res[i].F = res[i].G + res[i].H;
     res[i].father = pos; // 指定父点
     for (var j = 0; j < openList.length; j++) {
@@ -108,7 +161,7 @@ function lookAround(pos) {
       }
     }
   }
-  return sortArr(res); // 返回按 F 排序后的结果
+  return sortArr(res); // 返回按 F 和大方向排序后的结果
 }
 
 // 确定要走的下一格
@@ -138,15 +191,12 @@ function nextPos(pos) {
 // 寻路
 function doAStar() {
   var currentPos = startPoint; // 站到起点上
-  var counter = 0; // 计步器
- canvasRefresh(); // 刷新画布
+  getEndDirection(currentPos);  // 获取终点相对于起点的大方向
+  canvasRefresh(); // 刷新画布
   closeList.push(currentPos); // 将起点压入 closeList
   while (1) { // 开始寻路
     currentPos = nextPos(currentPos); // 走入下一格
     canvasDrawResult(); // 刷新画布结果
-    counter++; // 计步器加1
-    if(counter % 3 === 0) // 每走3步
-      openList = sortArr(openList); // 给 openList 排序，保证最小 F 在最前面
     if (!currentPos) { // 如果无可用 openList
       console.error("openList 耗尽，无可用路径。");
       alert("openList 耗尽，无可用路径。");

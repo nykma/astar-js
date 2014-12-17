@@ -5,7 +5,9 @@ var rectGroup = [],     // 方格矩阵
     canvasSize = {W:600, H:600},     // 画布尺寸
     startPoint = {X: 0, Y: 0, G: 0, father: undefined},
     endPoint = [{X: 5, Y: 5}], //起点和终点
-    gH = 10, gV = 10, gHV = 14, // 水平、垂直、对角线方向的移动权重
+    endDirection = "", // 起始时获取目标的大方向
+    gH = 10, gV = 10, gHV = 20, // 水平、垂直、对角线方向的移动权重
+    manhattan = 15, // 曼哈顿算法权重
     blockList = []; // 障碍物
 
 canvas.setHeight(canvasSize.H);
@@ -81,6 +83,7 @@ var canvasRefresh = function () {
   if(map.last !== map.H) { // 如果与上次刷新相比尺寸有改变
     canvas.clear(); // 清空画布
     rectGroup = []; // 清空rectGroup
+    blockList = []; // 清空blockList
     canvasDrawGrid(); // 重画网格
     canvasDrawRect(); // 重分配方格
     map.last = map.H; // 置上次尺寸位
