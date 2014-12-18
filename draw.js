@@ -6,8 +6,9 @@ var rectGroup = [],     // 方格矩阵
     startPoint = {X: 0, Y: 0, G: 0, father: undefined},
     endPoint = [{X: 5, Y: 5}], //起点和终点
     endDirection = "", // 起始时获取目标的大方向
-    gH = 10, gV = 10, gHV = 20, // 水平、垂直、对角线方向的移动权重
-    manhattan = 15, // 曼哈顿算法权重
+    gH = 10, gV = 10, gHV = 14, // 水平、垂直、对角线方向的移动权重
+    hMethod = "euclidean", // 启发式算法
+    MANHATTAN = 15, // 曼哈顿算法权重
     blockList = []; // 障碍物
 
 canvas.setHeight(canvasSize.H);
@@ -75,6 +76,11 @@ var canvasDrawRect = function () {
     rectGroup.push(rectLine);
   }
 };
+// 清除画布
+var canvasClean = function () {
+  blockList = [];
+  canvasRefresh();
+};
 
 //刷新画布
 var canvasRefresh = function () {
@@ -118,6 +124,8 @@ var canvasDrawResult = function (finalPath) {
       rectGroup[pos.X][pos.Y].set({fill: "red"});
     });
   }
+  rectGroup[startPoint.X][startPoint.Y].set({fill: "rgba(0,100,0,0.9)"}); // 起点
+  rectGroup[endPoint[0].X][endPoint[0].Y].set({fill: "orange"}); // 终点
   canvas.renderAll();
 };
 var setStartPoint = function () {  editStatus = 1; };

@@ -128,6 +128,18 @@ function getEndDirection(pos) {
 
 }
 
+function heuristics(pos) {
+  var dx = Math.abs(pos.X - endPoint[0].X);
+  var dy = Math.abs(pos.Y - endPoint[0].Y);
+  switch (hMethod) {
+    case "manhattan":
+      return (MANHATTAN * (dx + dy));
+    case "diagonal":
+      return (gH * (dx + dy) + (gHV - 2 * gH) * Math.min(dx, dy));
+    case "euclidean":
+      return gH * Math.sqrt(dx * dx + dy * dy);
+  }
+}
 // 获取周围格的情况
 function lookAround(pos) {
   getEndDirection(pos); // 刷新大方向
@@ -140,17 +152,14 @@ function lookAround(pos) {
   res.push({X: (pos.X + 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NE"});
   res.push({X: (pos.X - 1), Y: (pos.Y - 1), G: gHV + pos.G, direction:"NW"});
   res.push({X: (pos.X - 1), Y: (pos.Y + 1), G: gHV + pos.G, direction:"SW"});
-  var removeList = [];
-  for (var i = 0; i < res.length; i++) { // 对点作处理
+  for (var i = 0; i < res.length; i++) {
     if (!isLegal(res[i])) {
-      removeList.push(i); // 标记不合法的点
+      res.remove(i); // 剔除不合法的点
+      i--;
     }
   }
-  for (i = 0; i < removeList.length; i++) {
-    res.remove(removeList[i] - i); // 剔除不合法的点
-  }
   for (i = 0; i < res.length; i++) {
-    res[i].H = (Math.abs(res[i].X - endPoint[0].X) + Math.abs(res[i].Y - endPoint[0].Y)) * manhattan; // H 参数的 Manhattan 算法
+    res[i].H = heuristics(res[i]);
     res[i].F = res[i].G + res[i].H;
     res[i].father = pos; // 指定父点
     for (var j = 0; j < openList.length; j++) {
@@ -167,22 +176,18 @@ function lookAround(pos) {
 // 确定要走的下一格
 function nextPos(pos) {
   var surround = lookAround(pos); // 看周围
-  var next; // 下一步
+  var next;
   if (surround.length === 1) { // 如果周围只有一格可用
     next = surround[0]; // 直接走
   }
   else if (surround.length === 0) { //如果周围无可用格
-    if (openList.length) { // 如果openList 里有剩余
-      next = openList[openList.length - 1]; // 则在 openList 里挑一个最小 F
-      openList.remove(openList.length - 1); // 从openList 中移除此格
-    }
-    else { // 如果 openList 空了
+    if (openList.length) // 如果openList 里有剩余
+      next = openList.pop(); // 则在 openList 里弹出最小 F
+    else  // 如果 openList 空了
       return 0; // 返回错误
-    }
   }
   else { // 周围有多于一个可用格
-    next = surround[surround.length - 1]; // 走最小 F
-    surround.remove(surround.length - 1); // 剔除下一步要走的格子
+    next = surround.pop(); // 走最小 F
     openList = openList.concat(surround); // 将剩余格子加入 openList 中
   }
   closeList.push(next); // 将下一步格子压入 closeList 中
