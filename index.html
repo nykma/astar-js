@@ -12,22 +12,30 @@
         <h2>w/ Manhattan</h2>
         <p>说明：</p>
         <p>直接点击格以设置或取消障碍（黑色）</p>
-        <p>点击「start」或「end」以设置起点（绿色）和终点（橙色）</p>
-        <p>点击「Run」以执行寻路，若寻路成功，路径以红色显示。</p>
-        <p>支持多个终点。前一次的终点会自动作为下一次的起点。</p>
+        <p>点击按钮以设置起点（绿色）和终点（橙色）</p>
+        <p>点击「跑」以执行寻路，若寻路成功，路径以红色显示。</p>
+        <p>支持多个终点：前一次的终点会自动作为下一次的起点。</p>
         <p>备注：请使用支持 canvas 的浏览器。</p>
     </div>
     <canvas width="600" height="600" id="canvas"></canvas>
 
     <p></p>
     <div id="buttons">
-        <button id="setstart" onclick="setStartPoint()">Set Start</button>
-        <button id="setend" onclick="setEndPoint()">Set End</button>
-        <button id="run" onclick="doAStar()">Run</button>
+        <button id="setstart" onclick="setStartPoint()">设定起点</button>
+        <button id="setend" onclick="setEndPoint()">设定终点</button>
+        <button id="run" onclick="doAStar()">跑</button>
+        <button id="refresh" onclick="canvasRefresh()">重绘画布</button>
+        <button id="clean" onclick="canvasClean()">清空轨迹</button>
+    </div>
+    <div id="options">
         Map size:
         <input type="number" id="mapsize" value="20"/>
-        <button id="refresh" onclick="canvasRefresh()">Refresh</button>
-        <button id="clean" onclick="canvasClean()">Clean</button>
+        H-method:
+        <select name="heuristics" id="heuristics" onchange="setHmethod();">
+            <option value="euclidean">Euclidean</option>
+            <option value="manhattan">Manhattan</option>
+            <option value="diagonal">Diagonal</option>
+        </select>
     </div>
 
 

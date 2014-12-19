@@ -130,6 +130,7 @@ var canvasDrawResult = function (finalPath) {
 };
 var setStartPoint = function () {  editStatus = 1; };
 var setEndPoint = function () {  editStatus = 2; };
+var setHmethod = function() { hMethod = document.getElementById("heuristics").value };
 
 var rectClicked = function (options) {
   var toggleStatus = function (i, j) {
